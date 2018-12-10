@@ -16,7 +16,10 @@ public class BlockImage : MonoBehaviour {
 
     private bool isFilled;
 
-
+    private void Awake()
+    {
+        image = GetComponent<Image>();
+    }
     public void SetColor(Color InputColor)
     {
         image.color = InputColor;

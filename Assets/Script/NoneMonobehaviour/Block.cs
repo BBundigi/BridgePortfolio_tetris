@@ -12,7 +12,7 @@ public class Block
         }
     }
 
-    public int[] CurrentPoints
+    public Vector2Int[] CurrentPoints
     {
         get
         {
@@ -21,15 +21,16 @@ public class Block
     }
 
     //현재 좌표들을 기준으로 한줄 위의 좌표들
-    public int[] UpPoints
+    public Vector2Int[] UpPoints
     {
         get
         {
-            int[] returnPoints = new int[points.Length];
+            Vector2Int[] returnPoints = new Vector2Int[points.Length];
 
             for (int i = 0; i < returnPoints.Length; i++)
             {
-                returnPoints[i] = points[i] - MapManager.MapWidth;
+                returnPoints[i] = points[i] - new Vector2Int(0, 1); // 맨위블록의 Y좌표 -> 0, 맨아래블록의 Y좌표 -> MapHeight 
+                                                                    // 따라서 더하는게 아니라 빼는게맞음!!
             }
 
             return returnPoints;
@@ -37,15 +38,15 @@ public class Block
     }
 
     //현재 좌표들을 기준으로 한줄 아래의 자표들
-    public int[] DownPoints
+    public Vector2Int[] DownPoints
     {
         get
         {
-            int[] returnPoints = new int[points.Length];
+            Vector2Int[] returnPoints = new Vector2Int[points.Length];
 
             for (int i = 0; i < returnPoints.Length; i++)
             {
-                returnPoints[i] = points[i] -  MapManager.MapWidth;
+                returnPoints[i] = points[i] + new Vector2Int(0, 1);
             }
 
             return returnPoints;
@@ -54,7 +55,7 @@ public class Block
 
     private BlockID ID;
     private int PivotIndex;
-    private int[] points;
+    private Vector2Int[] points;
     private Color blockColor;
 
 
@@ -62,7 +63,7 @@ public class Block
     {
         for(int i =0; i < points.Length; i++)
         {
-            points[i] -= MapManager.MapWidth;
+            points[i] = points[i] - new Vector2Int(0, 1);
         }
     }
 
@@ -70,7 +71,7 @@ public class Block
     {
         for(int i =0; i < points.Length; i ++)
         {
-            points[i] += MapManager.MapWidth;
+            points[i] = points[i] + new Vector2Int(0, 1);
         }
     }
 
@@ -81,10 +82,6 @@ public class Block
             return;//O불록일땐 돌리는 의미가 없음!!
         }
 
-
-        int pivotXPos = points[PivotIndex] % MapManager.MapWidth;
-        int pivotYPos = points[PivotIndex] / MapManager.MapWidth;
-
         
         for (int i = 0; i < points.Length; i++)
         {
@@ -94,8 +91,8 @@ public class Block
             }
             else
             {
-                int rotatedXPos = points[i] % MapManager.MapWidth - pivotXPos;
-                int rotatedYPos = points[i] / MapManager.MapWidth - pivotYPos;
+                int rotatedXPos = points[i].x - points[PivotIndex].x;
+                int rotatedYPos = points[i].y - points[PivotIndex].y;
 
 
                 rotatedXPos = -rotatedYPos;
@@ -104,12 +101,12 @@ public class Block
                 // x * sin(a) + y * cos(a) = y'  a -> 돌릴각도
                 //회전방향은 반시계방향
 
-                rotatedXPos = pivotXPos + rotatedXPos;
-                rotatedYPos = pivotYPos + rotatedYPos;
+                rotatedXPos = points[PivotIndex].x + rotatedXPos;
+                rotatedYPos = points[PivotIndex].y + rotatedYPos;
 
                 Debug.Log("X : " + rotatedXPos);
                 Debug.Log("Y : " + rotatedYPos);
-                points[i] = rotatedYPos * MapManager.MapWidth + rotatedXPos;
+                points[i] = new Vector2Int(rotatedXPos,rotatedYPos);
             }
         }
     }
@@ -117,75 +114,75 @@ public class Block
     public Block(BlockID InputID)
     {
         ID = InputID;
-        points = new int[4];
+        points = new Vector2Int[4];
         switch (ID)
         {
             case BlockID.I:
                 {
-                    points[0] = 0;
-                    points[1] = 1;
-                    points[2] = 2;
-                    points[3] = 3;
+                    points[0] = new Vector2Int(3,0);
+                    points[1] = new Vector2Int(4, 0);
+                    points[2] = new Vector2Int(5, 0);
+                    points[3] = new Vector2Int(6, 0);
                     PivotIndex = 1;
                     blockColor = Color.red;
                     break;
                 }
             case BlockID.J:
                 {
-                    points[0] = -MapManager.MapWidth;
-                    points[1] = 0;
-                    points[2] = 1;
-                    points[3] = 2;
+                    points[0] = new Vector2Int(4, 0);
+                    points[1] = new Vector2Int(4, 1);
+                    points[2] = new Vector2Int(5, 1);
+                    points[3] = new Vector2Int(6, 1);
                     PivotIndex = 2;
                     blockColor = Color.black;
                     break;
                 }
             case BlockID.L:
                 {
-                    points[0] = 0;
-                    points[1] = 1;
-                    points[2] = 2;
-                    points[3] = 2 - MapManager.MapWidth;
+                    points[0] = new Vector2Int(4, 1);
+                    points[1] = new Vector2Int(5, 1);
+                    points[2] = new Vector2Int(6, 1);
+                    points[3] = new Vector2Int(6, 0);
                     PivotIndex = 1;
                     blockColor = Color.Lerp(Color.red, Color.grey, 0.5f);
                     break;
                 }
             case BlockID.O:
                 {
-                    points[0] = 0;
-                    points[1] = 1;
-                    points[2] = -MapManager.MapWidth;
-                    points[3] = 1 - MapManager.MapWidth;
+                    points[0] = new Vector2Int(4, 1);
+                    points[1] = new Vector2Int(5, 1);
+                    points[2] = new Vector2Int(4, 0);
+                    points[3] = new Vector2Int(5, 0);
                     PivotIndex = -1; //돌리는 의미가 없음
                     blockColor = Color.green;
                     break;
                 }
             case BlockID.S:
                 {
-                    points[0] = 0;
-                    points[1] = 1;
-                    points[2] = 1 - MapManager.MapWidth;
-                    points[3] = 2 - MapManager.MapWidth;
+                    points[0] = new Vector2Int(4, 1);
+                    points[1] = new Vector2Int(5, 1);
+                    points[2] = new Vector2Int(5, 0);
+                    points[3] = new Vector2Int(6, 0);
                     PivotIndex = 1;
                     blockColor = Color.yellow;
                     break;
                 }
             case BlockID.T:
                 {
-                    points[0] = 0;
-                    points[1] = 1;
-                    points[2] = 2;
-                    points[3] = 1 - MapManager.MapWidth;
+                    points[0] = new Vector2Int(4, 1);
+                    points[1] = new Vector2Int(5, 1);
+                    points[2] = new Vector2Int(6, 1);
+                    points[3] = new Vector2Int(5, 0);
                     PivotIndex = 1;
                     blockColor = Color.blue;
                     break;
                 }
             case BlockID.Z:
                 {
-                    points[0] = -MapManager.MapWidth;
-                    points[1] = 1 - MapManager.MapWidth;
-                    points[2] = 1;
-                    points[3] = 2;
+                    points[0] = new Vector2Int(4, 0);
+                    points[1] = new Vector2Int(5, 0);
+                    points[2] = new Vector2Int(5, 1);
+                    points[3] = new Vector2Int(6, 1);
                     PivotIndex = 2;
                     blockColor = Color.cyan;
                     break;

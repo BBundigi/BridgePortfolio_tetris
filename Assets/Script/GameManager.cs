@@ -9,7 +9,10 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private MapManager mapManager;
 
-
+    private void Awake()
+    {
+        DelayTime = 1.0f;
+    }
     private void Start()
     {
         StartCoroutine(WaitAndGameStart());
@@ -21,7 +24,7 @@ public class GameManager : MonoBehaviour {
 
         StartCoroutine(MainGameLogic());
     }
-
+    
     private IEnumerator MainGameLogic()
     {
         var WaitTime = new WaitForSeconds(DelayTime);

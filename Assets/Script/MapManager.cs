@@ -24,8 +24,16 @@ public class MapManager : MonoBehaviour {
 
         for(int i =0; i < CurrentBlock.CurrentPoints.Length; i++)
         {
-            int[] downPoints = CurrentBlock.DownPoints;
-            if (BlockImageArr[downPoints[i]].IsFilled)
+            Vector2Int[] downPoints = CurrentBlock.DownPoints;
+
+            int currentIndex = downPoints[i].y * MapWidth + downPoints[i].x;
+
+            if (downPoints[i].y > MapHeight)
+            {
+                FillBlock();
+                return true;
+            }
+            else if (BlockImageArr[currentIndex].IsFilled)
             {
                 FillBlock();
                 return true;
@@ -39,30 +47,25 @@ public class MapManager : MonoBehaviour {
 
     private void DrawCurrentBlock()
     {
-        int[] upPoints = CurrentBlock.UpPoints;
+        Vector2Int[] upPoints = CurrentBlock.UpPoints;
 
         //이전 좌표의 색깔 지우기!
         for(int i =0; i < upPoints.Length; i++)
         {
-            if (upPoints[i] < 0)
+            if(upPoints[i].y < 0)
             {
-                continue; //음수인 좌표는 그리지 않음 (초기좌표에 음수인 부분이 있음 버그가 아님!!);
+                continue;
+                //예외 처리
             }
-
-            BlockImageArr[upPoints[i]].SetColor(Color.white);
+            BlockImageArr[upPoints[i].y * MapWidth + upPoints[i].x].SetColor(Color.white);
         }
         
         //현재 좌표 색깔 그리기!
         for(int i =0; i < CurrentBlock.CurrentPoints.Length; i++)
         {
-            int tempPoint = CurrentBlock.CurrentPoints[i];
+            Vector2Int tempPoint = CurrentBlock.CurrentPoints[i];
 
-            if(tempPoint < 0)
-            {
-                continue; //음수인 좌표는 그리지 않음 (초기좌표에 음수인 부분이 있음 버그가 아님!!);
-            }
-
-            BlockImageArr[tempPoint].SetColor(CurrentBlock.BlockColor);
+            BlockImageArr[tempPoint.y * MapWidth + tempPoint.x].SetColor(CurrentBlock.BlockColor);
         }
     }
 
@@ -70,14 +73,14 @@ public class MapManager : MonoBehaviour {
     {
         for (int i = 0; i < CurrentBlock.CurrentPoints.Length; i++)
         {
-            int tempPoint = CurrentBlock.CurrentPoints[i];
+            Vector2Int tempPoint = CurrentBlock.CurrentPoints[i];
 
-            if (tempPoint < 0)
+            if (tempPoint.y < 0)
             {
                 //GameOver
             }
 
-            BlockImageArr[tempPoint].FillBlock();
+            BlockImageArr[tempPoint.y * MapWidth + tempPoint.x].FillBlock();
         }
 
         CheckBlock_Score();
@@ -85,28 +88,27 @@ public class MapManager : MonoBehaviour {
 
     private bool CheckBlock_Score()
     {
-        int count = 0;
         bool returnBool = false;
-        for(int i = 0; i < BlockImageArr.Length; i++)
+
+        for(int i =0; i < MapHeight; i++)
         {
-            if(i / MapWidth == 0)
+            int count = 0;
+            for(int j =0; j < MapWidth; j++)
             {
-                count = 0;
-            }
+                int currentIndex = i * MapWidth + j;
 
-            if (BlockImageArr[i].IsFilled)
-            {
-                count++;
-            }
-
-            if(count == MapWidth)
-            {
-                i = i - MapWidth + 1;
-
-                for(;i < i + MapWidth; i++)
+                if(BlockImageArr[currentIndex].IsFilled)
                 {
-                    BlockImageArr[i].UnfillBlock();
-                    returnBool = true;
+                    count++;
+                }
+
+                if(count == MapWidth)
+                {
+                    for (;j >=0 ; j--)
+                    {
+                        BlockImageArr[i * MapWidth + j].UnfillBlock();
+                        returnBool = true;
+                    }
                 }
             }
         }
