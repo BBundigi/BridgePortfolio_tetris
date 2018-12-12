@@ -34,9 +34,8 @@ public class GameManager : MonoBehaviour {
         {
             yield return (WaitTime);
 
-            if (mapManager.PushBlockDown())
+            if (!mapManager.PushBlockDown())
             {
-                yield return (WaitTime);
                 mapManager.SetCurrentBlock((BlockID)Random.Range(0, 7));
             }
         }

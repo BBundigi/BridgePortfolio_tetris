@@ -53,6 +53,39 @@ public class Block
         }
     }
 
+
+    public Vector2Int[] RightPoints
+    {
+        get
+        {
+            Vector2Int[] returnPoints = new Vector2Int[points.Length];
+
+            for (int i = 0; i < returnPoints.Length; i++)
+            {
+                returnPoints[i] = points[i] + new Vector2Int(1, 0);
+            }
+
+            return returnPoints;
+        }
+    }
+
+
+    public Vector2Int[] LeftPoints
+    {
+        get
+        {
+            Vector2Int[] returnPoints = new Vector2Int[points.Length];
+
+            for (int i = 0; i < returnPoints.Length; i++)
+            {
+                returnPoints[i] = points[i] - new Vector2Int(1, 0);
+            }
+
+            return returnPoints;
+        }
+    }
+
+
     private BlockID ID;
     private int PivotIndex;
     private Vector2Int[] points;
@@ -67,11 +100,27 @@ public class Block
         }
     }
 
-    public void PointsDown()
+    public void MovePointsDown()
     {
         for(int i =0; i < points.Length; i ++)
         {
             points[i] = points[i] + new Vector2Int(0, 1);
+        }
+    }
+
+    public void MovePointsRight()
+    {
+        for (int i = 0; i < points.Length; i++)
+        {
+            points[i] = points[i] + new Vector2Int(1, 0);
+        }
+    }
+
+    public void MovePointsLeft()
+    {
+        for (int i = 0; i < points.Length; i++)
+        {
+            points[i] = points[i] - new Vector2Int(1, 0);
         }
     }
 
