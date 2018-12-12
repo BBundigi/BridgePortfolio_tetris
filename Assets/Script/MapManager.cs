@@ -33,11 +33,12 @@ public class MapManager : MonoBehaviour {
 
         for (int i = 0; i < leftPoints.Length; i++)
         {
-            if(leftPoints[i].x >= MapWidth || leftPoints[i].x < 0)
+            if (leftPoints[i].x >= MapWidth || leftPoints[i].x < 0
+                                || BlockImageArr[ConvertPos2DTo1D(leftPoints[i].x, leftPoints[i].y)].IsFilled)
             {
                 return;
             }
-        }//맵 너비를 벗어나면 이동하지 않음
+        }//맵 너비를 벗어나거나 옆에 채워진 블록이 있으면 이동하지 않음
 
         ClearCurrentBlock();
         CurrentBlock.MovePointsLeft();
@@ -55,11 +56,12 @@ public class MapManager : MonoBehaviour {
 
         for (int i = 0; i < rightPionts.Length; i++)
         {
-            if (rightPionts[i].x >= MapWidth || rightPionts[i].x < 0)
+            if (rightPionts[i].x >= MapWidth || rightPionts[i].x < 0
+                                || BlockImageArr[ConvertPos2DTo1D(rightPionts[i].x, rightPionts[i].y)].IsFilled)
             {
                 return;
             }
-        }//맵 너비를 벗어나면 이동하지 않음
+        }//맵 너비를 벗어나거나 옆에 채워진 블록이 있으면 이동하지 않음
 
         ClearCurrentBlock();
         CurrentBlock.MovePointsRight();
@@ -72,6 +74,48 @@ public class MapManager : MonoBehaviour {
             return;
             //이미 바닥에 붙였으니 추가적인 행동은 몬함!
         }
+
+        ClearCurrentBlock();
+        CurrentBlock.RotateBlock();
+
+        for(int i =0; i < CurrentBlock.CurrentPoints.Length; i++)
+        {
+            int currentPos_X = CurrentBlock.CurrentPoints[i].x;
+            int currentPos_Y = CurrentBlock.CurrentPoints[i].y;
+
+            if(currentPos_X < 0)
+            {
+                CurrentBlock.MovePointsRight();
+                i = 0;//재검사
+                continue;
+            }
+            else if(currentPos_X >= MapWidth)
+            {
+                CurrentBlock.MovePointsLeft();
+                i = 0;
+                continue;
+            }
+            else if(currentPos_Y >= MapHeight)
+            {
+                CurrentBlock.MovePointsUp();
+                i = 0;
+                continue;
+            }
+            else if(currentPos_Y < 0)
+            {
+                CurrentBlock.MovePointsDown();
+                i = 0;
+                continue;
+            }
+
+            int currentIndex = CurrentBlock.CurrentPoints[i].y * MapWidth + CurrentBlock.CurrentPoints[i].x;
+
+            if(BlockImageArr[currentIndex].IsFilled)
+            {
+                CurrentBlock.MovePointsUp();
+            }        
+        }
+        DrawCurrentBlock();
     }
     public void AttachCurrentBlock()
     {
@@ -87,14 +131,14 @@ public class MapManager : MonoBehaviour {
             bool breakFlag = false;
             for(int i =0; i < CurrentBlock.CurrentPoints.Length; i ++)
             {
-                currentIndex = CurrentBlock.CurrentPoints[i].y * MapWidth + CurrentBlock.CurrentPoints[i].x;
-                Debug.Log(CurrentBlock.CurrentPoints[i].y);
+                currentIndex = ConvertPos2DTo1D(CurrentBlock.CurrentPoints[i].x,CurrentBlock.CurrentPoints[i].y);
                 if (CurrentBlock.CurrentPoints[i].y + 1 >= MapHeight || BlockImageArr[currentIndex+MapWidth].IsFilled)
                 {
                     breakFlag = true;
                     break;
                 }
             }
+            
             if (breakFlag)
             {
                 break;
@@ -177,7 +221,7 @@ public class MapManager : MonoBehaviour {
                 //GameOver
             }
 
-            BlockImageArr[tempPoint.y * MapWidth + tempPoint.x].FillBlock();
+            BlockImageArr[ConvertPos2DTo1D(tempPoint.x, tempPoint.y)].FillBlock();
         }
 
         CheckBlock_Score();
@@ -187,12 +231,12 @@ public class MapManager : MonoBehaviour {
     {
         bool returnBool = false;
 
-        for(int i =0; i < MapHeight; i++)
+        for(int i = MapHeight- 1; i >= 0; i--)//디버깅좀 편하게 할려구 Y축은 줄여가며 체크합니다
         {
             int count = 0;
             for(int j =0; j < MapWidth; j++)
             {
-                int currentIndex = i * MapWidth + j;
+                int currentIndex = ConvertPos2DTo1D(j,i);
 
                 if(BlockImageArr[currentIndex].IsFilled)
                 {
@@ -201,13 +245,13 @@ public class MapManager : MonoBehaviour {
 
                 if(count == MapWidth)
                 {
+                    returnBool = true;
                     for (;j >=0 ; j--)
                     {
                         BlockImageArr[i * MapWidth + j].UnfillBlock();
-                        returnBool = true;
                     }//점수획득 + 블록지우기
                     PullBlock(i);
-                    
+                    break; 
                 }
             }
         }
@@ -218,14 +262,19 @@ public class MapManager : MonoBehaviour {
     {
         for(int i = 0; i < MapWidth; i++)
         {
-            int currentIndex = (InputYPos -1) * MapWidth + i;//입력받은 Y좌표에서 한칸 위부터 작업시작
+            int currentIndex = ConvertPos2DTo1D(i,InputYPos -1);//입력받은 Y좌표에서 한칸 위부터 작업시작
             while (BlockImageArr[currentIndex].IsFilled)
             {
                 BlockImageArr[currentIndex].UnfillBlock();//지우고
                 BlockImageArr[currentIndex + MapWidth].FillBlock();//아래블록 채우고
 
-                currentIndex += MapWidth;//CurrentIndex Update
+                currentIndex -= MapWidth;//CurrentIndex Update
             }
         }
+    }
+
+    private int ConvertPos2DTo1D(int InputXPos,int InputYPos)
+    {
+        return InputYPos * MapWidth + InputXPos;
     }
 }

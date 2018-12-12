@@ -92,7 +92,7 @@ public class Block
     private Color blockColor;
 
 
-    public void PointsUp()
+    public void MovePointsUp()
     {
         for(int i =0; i < points.Length; i++)
         {
@@ -140,18 +140,18 @@ public class Block
             }
             else
             {
-                int rotatedXPos = points[i].x - points[PivotIndex].x;
-                int rotatedYPos = points[i].y - points[PivotIndex].y;
+                int pivotToCurrentPoint_X = points[i].x - points[PivotIndex].x;
+                int pivotToCurrentPoint_Y = points[i].y - points[PivotIndex].y;
 
 
-                rotatedXPos = -rotatedYPos;
-                rotatedYPos = +rotatedXPos;
+                int rotatedXPos = -pivotToCurrentPoint_Y;
+                int rotatedYPos = +pivotToCurrentPoint_X;
                 // x * cos(a) - y * sin(a) = x'
                 // x * sin(a) + y * cos(a) = y'  a -> 돌릴각도
                 //회전방향은 반시계방향
 
-                rotatedXPos = points[PivotIndex].x + rotatedXPos;
-                rotatedYPos = points[PivotIndex].y + rotatedYPos;
+                rotatedXPos += points[PivotIndex].x;
+                rotatedYPos += points[PivotIndex].y;
 
                 Debug.Log("X : " + rotatedXPos);
                 Debug.Log("Y : " + rotatedYPos);

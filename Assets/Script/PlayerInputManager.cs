@@ -32,5 +32,10 @@ public class PlayerInputManager : MonoBehaviour {
         {
             mapManager.AttachCurrentBlock();
         }
+
+        if(Input.GetKeyDown(KeyCode.C))
+        {
+            mapManager.RotateBlock();
+        }
     }
 }
