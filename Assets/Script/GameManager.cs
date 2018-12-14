@@ -9,12 +9,15 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private MapManager mapManager;
 
+    private BlockID WatingBlock;
+
     private void Awake()
     {
         DelayTime = 1.0f;
     }
     private void Start()
     {
+        WatingBlock = (BlockID)Random.Range(0, 7);
         StartCoroutine(WaitAndGameStart());
     }
 
@@ -30,13 +33,17 @@ public class GameManager : MonoBehaviour {
         var WaitTime = new WaitForSeconds(DelayTime);
 
         mapManager.SetCurrentBlock((BlockID)Random.Range(0, 7));//썩 좋아하는 방법은 아니지만 아무튼...
+        UIManager.Instance.ShowPreviewBlock(WatingBlock);
         while (true)
         {
             yield return (WaitTime);
 
             if (!mapManager.PushBlockDown())
             {
-                mapManager.SetCurrentBlock((BlockID)Random.Range(0, 7));
+                mapManager.SetCurrentBlock(WatingBlock);
+                WatingBlock = (BlockID)Random.Range(0, 7);
+                UIManager.Instance.ShowPreviewBlock(WatingBlock);
+
             }
         }
     }

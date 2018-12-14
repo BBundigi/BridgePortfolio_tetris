@@ -153,8 +153,6 @@ public class Block
                 rotatedXPos += points[PivotIndex].x;
                 rotatedYPos += points[PivotIndex].y;
 
-                Debug.Log("X : " + rotatedXPos);
-                Debug.Log("Y : " + rotatedYPos);
                 points[i] = new Vector2Int(rotatedXPos,rotatedYPos);
             }
         }

@@ -6,6 +6,7 @@ public class MapManager : MonoBehaviour {
     public const int MapWidth = 11;
     public const int MapHeight = 17;
 
+    private int Score;
     private Block CurrentBlock;
     private BlockImage[] BlockImageArr;
 
@@ -16,9 +17,16 @@ public class MapManager : MonoBehaviour {
         BlockImageArr = GetComponentsInChildren<BlockImage>();
     }
 
+    private void Start()
+    {
+        Score = 0;
+        UIManager.Instance.SetScore(Score);
+    }
+
     public void SetCurrentBlock(BlockID InputBlock)
     {
         CurrentBlock = new Block(InputBlock);
+        CheckGameOver();
         DrawCurrentBlock();
     }
 
@@ -216,20 +224,25 @@ public class MapManager : MonoBehaviour {
         {
             Vector2Int tempPoint = CurrentBlock.CurrentPoints[i];
 
-            if (tempPoint.y < 0)
-            {
-                //GameOver
-            }
-
             BlockImageArr[ConvertPos2DTo1D(tempPoint.x, tempPoint.y)].FillBlock();
         }
 
         CheckBlock_Score();
     }
-
-    private bool CheckBlock_Score()
+    private void CheckGameOver()
     {
-        bool returnBool = false;
+        for(int i =0; i< CurrentBlock.CurrentPoints.Length;i++)
+        {
+            int currentIndex = ConvertPos2DTo1D(CurrentBlock.CurrentPoints[i].x, CurrentBlock.CurrentPoints[i].y);
+            if(BlockImageArr[currentIndex].IsFilled)
+            {
+                UIManager.Instance.GameOver();
+                break;
+            }
+        }
+    }
+    private void CheckBlock_Score()
+    {
 
         for(int i = MapHeight- 1; i >= 0; i--)//디버깅좀 편하게 할려구 Y축은 줄여가며 체크합니다
         {
@@ -245,30 +258,37 @@ public class MapManager : MonoBehaviour {
 
                 if(count == MapWidth)
                 {
-                    returnBool = true;
                     for (;j >=0 ; j--)
                     {
                         BlockImageArr[i * MapWidth + j].UnfillBlock();
                     }//점수획득 + 블록지우기
                     PullBlock(i);
+                    Score += 1000;
+                    UIManager.Instance.SetScore(Score);
+                    i++;//해당줄부터 재검사
                     break; 
                 }
             }
+            if(count == 0)
+            {
+                break; // 더 검사할 필요도 없으니 맵전체를 검사하지 맙시다.
+            }
         }
-        return returnBool;
     }
 
     private void PullBlock(int InputYPos)
     {
         for(int i = 0; i < MapWidth; i++)
         {
-            int currentIndex = ConvertPos2DTo1D(i,InputYPos -1);//입력받은 Y좌표에서 한칸 위부터 작업시작
-            while (BlockImageArr[currentIndex].IsFilled)
+            int currentIndex = 0;//입력받은 Y좌표에서 한칸 위부터 작업시작
+            for(int j = InputYPos - 1; j >=0; j-- )
             {
-                BlockImageArr[currentIndex].UnfillBlock();//지우고
-                BlockImageArr[currentIndex + MapWidth].FillBlock();//아래블록 채우고
-
-                currentIndex -= MapWidth;//CurrentIndex Update
+                currentIndex = ConvertPos2DTo1D(i, j);
+                if (BlockImageArr[currentIndex].IsFilled)
+                {
+                    BlockImageArr[currentIndex].UnfillBlock();//지우고
+                    BlockImageArr[currentIndex + MapWidth].FillBlock();//아래블록 채우고
+                }             
             }
         }
     }
