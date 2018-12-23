@@ -20,6 +20,7 @@ public class BlockImage : MonoBehaviour {
     {
         image = GetComponent<Image>();
     }
+
     public void SetColor(Color InputColor)
     {
         image.color = InputColor;

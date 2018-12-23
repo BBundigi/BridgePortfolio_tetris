@@ -8,6 +8,8 @@ public class MapManager : MonoBehaviour {
 
     private int Score;
     private Block CurrentBlock;
+
+
     private BlockImage[] BlockImageArr;
 
     private bool isAttached;

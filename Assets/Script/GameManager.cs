@@ -43,7 +43,6 @@ public class GameManager : MonoBehaviour {
                 mapManager.SetCurrentBlock(WatingBlock);
                 WatingBlock = (BlockID)Random.Range(0, 7);
                 UIManager.Instance.ShowPreviewBlock(WatingBlock);
-
             }
         }
     }
